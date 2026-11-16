@@ -1,7 +1,5 @@
-import pandas as pd
 import numpy as np
-
-# needs cleaning up, comments in particular might be whack. np.polyfit can be replaced with Polynomial.fit
+import pandas as pd
 
 
 def analyze_laser_li_curve():
@@ -31,7 +29,7 @@ def analyze_laser_li_curve():
     df = pd.DataFrame({"Current_mA": current_ma, "Power_mW": power_mw})
 
     print("\n--- STEP 1: AUTOMATED THRESHOLD CURRENT DETECTION ---")
-    # In HVM, we locate the threshold by calculating the second derivative (d^2P/dI^2)
+    # Locate the threshold by calculating the second derivative (d^2P/dI^2)
     # The peak of the second derivative indicates the sharpest change in curve velocity (lasing onset)
     df["dP"] = np.gradient(df["Power_mW"], df["Current_mA"])
     df["d2P"] = np.gradient(df["dP"], df["Current_mA"])
@@ -45,7 +43,7 @@ def analyze_laser_li_curve():
     lasing_region = df[df["Current_mA"] > (calculated_ith + 5.0)]
 
     # Use a linear regression fit (y = mx + b) on the lasing region to find the slope
-    slope, intercept = np.polyfit(
+    slope, intercept = np.polyfit(  # np.polyfit can be replaced with Polynomial.fit
         lasing_region["Current_mA"], lasing_region["Power_mW"], 1
     )
     print(f"Calculated Slope Efficiency (eta): {slope:.4f} mW/mA")

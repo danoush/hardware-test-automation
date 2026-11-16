@@ -12,9 +12,10 @@ Protocol facts, verified on our unit (NanoVNA-H, firmware 1.2.50, Nov 2026):
   rate setting is ignored. 115200 is just a conventional value.
 """
 
-import serial
-import numpy as np
 import io
+
+import numpy as np
+import serial
 
 from core.vna import VNA, SweepResult
 
@@ -25,8 +26,6 @@ SCAN_OUTMASK = "0b111"  # bit 0: frequency, bit 1: S11, bit 2: S21
 
 class SyncError(ConnectionError):
     """Raised when the driver and device lose synchronization."""
-
-    pass
 
 
 def parse_scan(text: str, expected_points: int) -> SweepResult:
@@ -46,23 +45,16 @@ def parse_scan(text: str, expected_points: int) -> SweepResult:
             number of lines doesn't equal expected_points. Never skip a bad
             line: silently dropping a point corrupts the trace.
     """
+
     if not text.strip():
         raise ValueError("Scan output is empty.")
-
-    # try:
     data = np.loadtxt(io.StringIO(text), ndmin=2)
-    # except ValueError as err:
-    # raise ValueError(f"Failed to parse scan text: {err}") from err
-    # likely unnecessary try/except
-
     if data.shape[1] != 5:
         raise ValueError("Each line must contain exactly 5 numbers.")
-
     if len(data) != expected_points:
         raise ValueError(
             f"expected {expected_points} points, got {len(data)} lines of data"
         )
-
     frequency_hz = data[:, 0]
     s11 = data[:, 1] + 1j * data[:, 2]
     s21 = data[:, 3] + 1j * data[:, 4]

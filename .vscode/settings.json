@@ -12,5 +12,27 @@
         "editor.codeActionsOnSave": {
             "source.organizeImports.ruff": "explicit"
         }
+    },
+    "editor.tokenColorCustomizations": {
+        "[Dracula Theme]": {
+            "textMateRules": [
+                {
+                    "scope": "string.quoted.docstring.multi.python",
+                    "settings": {
+                        "foreground": "#F1FA8C"
+                    }
+                }
+            ]
+        },
+        "[Dracula Theme Soft]": {
+            "textMateRules": [
+                {
+                    "scope": "string.quoted.docstring.multi.python",
+                    "settings": {
+                        "foreground": "#F1FA8C"
+                    }
+                }
+            ]
+        }
     }
 }
