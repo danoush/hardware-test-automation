@@ -52,16 +52,24 @@ def grade_attenuation(
 
     Raises:
         ValueError: if band extends beyond the sweep (on either side).
+        ValueError: if band_hz does not contain exactly two boundaries.
         ValueError: if no sweep points fall inside the band. Never pass a
             part you didn't measure.
     """
+    frequencies = result.frequency_hz
+    if frequencies.size < 2:
+        raise ValueError("Frequency sweep must contain at least two points.")
+    if not np.all(frequencies[1:] > frequencies[:-1]):
+        raise ValueError("Frequency sweep must be in strictly ascending order.")
+    if len(band_hz) != 2:
+        raise ValueError("band_hz must contain exactly two frequency boundaries.")
     band_min = band_hz[0]
     band_max = band_hz[1]
     sweep_min = result.frequency_hz[0]
     sweep_max = result.frequency_hz[-1]
     if band_min < sweep_min or band_max > sweep_max:
         raise ValueError(
-            f"Band {band_min:g} to {band_max:g} Hz extends past the sweep ({sweep_min} to {sweep_max} hz)."
+            f"Band {band_min:g} to {band_max:g} Hz extends past the sweep ({sweep_min:g} to {sweep_max:g} Hz)."
         )
     mask = (result.frequency_hz >= band_min) & (result.frequency_hz <= band_max)
     freqs_hz = result.frequency_hz[mask]

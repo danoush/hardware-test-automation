@@ -1,29 +1,33 @@
 [attenuators.pad_1db]
 nominal_db = 1
 tolerance_db = 0.1
-band_hz = [50e3, 900e6]
+band_hz = [50e3, 676e6]
 
 [attenuators.pad_2db]
 nominal_db = 2
 tolerance_db = 0.1
-band_hz = [50e3, 900e6]
+band_hz = [50e3, 676e6]
 
 [attenuators.pad_3db]
 nominal_db = 3
 tolerance_db = 0.1
-band_hz = [50e3, 900e6]
+band_hz = [50e3, 676e6]
 
 [attenuators.pad_6db]
 nominal_db = 6
 tolerance_db = 0.1
-band_hz = [50e3, 900e6]
+band_hz = [50e3, 676e6]
 
 [attenuators.pad_10db]
 nominal_db = 10
 tolerance_db = 0.1
-band_hz = [50e3, 900e6]
+band_hz = [50e3, 676e6]
 
 [attenuators.pad_20db]
 nominal_db = 20
 tolerance_db = 0.1
-band_hz = [50e3, 900e6]
+band_hz = [50e3, 676e6]
+
+# nominal_db and tolerance_db values from Nooelec SMA Attenuator Kit
+# band_hz from known "good" range of 50e3 - 675.0125e6 Hz out of original 50e3 - 900e6 Hz sweep on NanoVNA
+# "good" range goes higher than this upper bound but we sample at 675.0125e6

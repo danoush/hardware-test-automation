@@ -63,7 +63,7 @@ def attenuator_limits(config: dict, part: str) -> AttenuatorLimits:
 
     pad_data = attenuators[part]
     if not isinstance(pad_data, dict):
-        raise TypeError(f"{part} must be a table.")
+        raise ValueError(f"{part} must be a table.")
 
     for key in ("nominal_db", "tolerance_db", "band_hz"):
         if key not in pad_data:

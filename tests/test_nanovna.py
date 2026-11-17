@@ -310,7 +310,15 @@ def test_flags_must_be_whole_words():
         ("cal'ed", frozenset({"load", "isoln", "Es", "Er", "Et"})),
         ("", frozenset({"load", "isoln", "Es", "Er", "Et", "cal'ed"})),
         ("load open short thru isoln", frozenset({"Es", "Er", "Et", "cal'ed"})),
+        ("Et cal'ed", frozenset({"load", "isoln", "Es", "Er"})),
     ],
 )
 def test_missing_cal_flags(status, expected):
+    """
+    Return the flags in REQUIRED_CAL_FLAGS that `status` lacks.
+
+    `status` is the output of the `cal` shell command, e.g.
+    "load isoln Es Er Et cal'ed". An empty set means fully calibrated
+    with correction switched on.
+    """
     assert missing_cal_flags(status) == expected

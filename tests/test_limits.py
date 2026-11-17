@@ -66,15 +66,15 @@ def test_unknown_part_raises_and_says_what_the_file_has():
     config = two_pads()
     # `as excinfo` keeps the exception so you can inspect it after the block.
     with pytest.raises(ValueError) as excinfo:
-        attenuator_limits(config, "pad_7db")
+        attenuator_limits(config, "pad_6db")
     message = str(excinfo.value)
-    assert "pad_7db" in message  # what was asked for
+    assert "pad_6db" in message  # what was asked for
     assert "pad_3db" in message  # what the file does have: typos get obvious
 
 
 def test_empty_file_raises_value_error_not_key_error():
     # An empty file parses to {}: there's no [attenuators] table at all.
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="pad_3db"):
         attenuator_limits({}, "pad_3db")
 
 

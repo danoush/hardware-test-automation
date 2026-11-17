@@ -1,6 +1,6 @@
 import pytest
 
-from core.vna_drivers import KeysightVNA, AnritsuVNA
+from core.vna_drivers import AnritsuVNA, KeysightVNA
 
 
 def test_keysight_driver_initial_state():
