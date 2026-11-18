@@ -1,13 +1,17 @@
-import time
 import math
+import time
+
 import serial
-from core.base_instrument import AbstractVNA
+
+from prototypes.base_instrument import AbstractVNA
 
 
 class PhysicalNanoVNA(AbstractVNA):
-    """
-    A professional, robust serial driver interface that communicates with a
-    physical NanoVNA-H hardware device over an active USB COM port interface.
+    """The first NanoVNA-H driver, superseded by core/nanovna.py.
+
+    It reads stored data with `data 1`, skips lines it can't parse and
+    returns S21 in dB. core/nanovna.py runs a fresh `scan` instead, returns
+    complex data, and rejects malformed lines rather than skipping them.
     """
 
     def __init__(self, resource_address: str):

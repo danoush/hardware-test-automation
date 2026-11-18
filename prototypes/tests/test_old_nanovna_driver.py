@@ -1,6 +1,15 @@
-import pytest
+"""Tests for the superseded first driver in prototypes/old_nanovna_driver.py.
+
+This driver skips lines it can't parse, which the first test checks.
+core/nanovna.py deliberately does the opposite and rejects them (see
+parse_scan and tests/test_nanovna.py).
+"""
+
 import math
-from core.nanovna_driver import PhysicalNanoVNA
+
+import pytest
+
+from prototypes.old_nanovna_driver import PhysicalNanoVNA
 
 # --- COUPLING DRIVER TEST ENHANCEMENTS (FAULT INJECTION) ---
 
@@ -66,6 +75,5 @@ def test_driver_raises_exception_on_missing_prompt():
     driver.serial_link = DummyFaultySerial(behavioral_scenario="missing_prompt")
 
     # Force the execution loop to simulate a hardware timeout limit block
-    # This directly answers Claude's criteria: ensuring the path raises on failures
     with pytest.raises(TimeoutError):
         driver.capture_s21_trace()

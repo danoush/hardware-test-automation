@@ -1,13 +1,11 @@
-import sys
-import os
-import time
 import json
+import time
+from pathlib import Path
 
-# Ensure Python can find the root directory modules if run directly from within the pipelines folder
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from prototypes.data_logger import initialize_production_database
+from prototypes.simulated_vnas import SimulatedAnritsuVNA, SimulatedKeysightVNA
 
-from core.vna_drivers import KeysightVNA, AnritsuVNA
-from pipelines.data_logger import initialize_production_database
+SETTINGS_PATH = Path(__file__).parent / "factory_settings.json"
 
 
 def run_automated_wafer_probe_line(vna_hardware_driver):
@@ -47,7 +45,7 @@ def run_automated_wafer_probe_line(vna_hardware_driver):
             peak_power = max(s21_trace_data)
 
             # Parametric pass/fail grading limits step
-            with open("config/factory_settings.json", "r") as f:
+            with open(SETTINGS_PATH, "r") as f:
                 specs = json.load(f)
             s21_limit = specs["pass_fail_thresholds"]["min_s21_peak_db"]
             grading_verdict = "PASS" if peak_power >= s21_limit else "FAIL"
@@ -79,11 +77,13 @@ def run_automated_wafer_probe_line(vna_hardware_driver):
 
 if __name__ == "__main__":
     # Test Scenario A: Execute line using Keysight hardware configuration
-    keysight_station_hardware = KeysightVNA(resource_address="GPIB0::22::INSTR")
+    keysight_station_hardware = SimulatedKeysightVNA(
+        resource_address="GPIB0::22::INSTR"
+    )
     run_automated_wafer_probe_line(keysight_station_hardware)
 
     # Test Scenario B: Execute identical sequence using alternative Anritsu gear
-    anritsu_station_hardware = AnritsuVNA(
+    anritsu_station_hardware = SimulatedAnritsuVNA(
         resource_address="TCPIP0::192.168.1.50::INSTR"
     )
     run_automated_wafer_probe_line(anritsu_station_hardware)

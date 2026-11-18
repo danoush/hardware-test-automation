@@ -1,3 +1,5 @@
+"""Prototype instrument interface, superseded by core/vna.py."""
+
 from abc import ABC, abstractmethod
 
 
@@ -13,7 +15,7 @@ class AbstractVNA(ABC):
 
     @abstractmethod
     def connect(self) -> bool:
-        """Establishes physical or virtual connection via PyVISA."""
+        """Opens the connection and reports whether it worked."""
         pass
 
     @abstractmethod

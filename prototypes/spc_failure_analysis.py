@@ -1,6 +1,7 @@
-import sqlite3
 import json
 import os
+import sqlite3
+
 import pandas as pd
 
 # can use pathlib instead (more modern approach)
@@ -10,7 +11,7 @@ def load_factory_specifications():
     """Dynamically reads the decoupled hardware thresholds from the JSON configuration."""
     # Resolve file path relative to this script's position to avoid terminal execution bugs
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = os.path.join(base_dir, "..", "config", "factory_settings.json")
+    config_path = os.path.join(base_dir, "factory_settings.json")
 
     with open(config_path, "r") as file:
         return json.load(file)
@@ -26,7 +27,7 @@ def execute_spc_yield_audit():
 
     # 2. Extract historical production data from the relational database file
     db_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "hvm_test_factory.db"
+        os.path.dirname(os.path.abspath(__file__)), "hvm_test_factory.db"
     )
     if not os.path.exists(db_path):
         print(

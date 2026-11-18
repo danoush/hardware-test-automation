@@ -1,5 +1,6 @@
-import serial
 import time
+
+import serial
 
 
 def read_raw_hardware_stream():

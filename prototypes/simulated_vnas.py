@@ -1,9 +1,16 @@
+"""Simulated stand-ins for two benchtop VNAs.
+
+Neither class talks to an instrument: each prints the SCPI command a real
+driver would send and returns a fixed five-point S21 trace in dB.
+"""
+
 import time
-from core.base_instrument import AbstractVNA
+
+from prototypes.base_instrument import AbstractVNA
 
 
-class KeysightVNA(AbstractVNA):
-    """Driver specifically for Keysight E5080B Network Analyzers."""
+class SimulatedKeysightVNA(AbstractVNA):
+    """Simulated Keysight E5080B: no instrument I/O, fixed trace."""
 
     def connect(self) -> bool:
         print(f"[DRV-KEYSIGHT] Opening VISA session to {self.resource_address}")
@@ -21,8 +28,8 @@ class KeysightVNA(AbstractVNA):
         return [-0.5, -1.2, -2.1, -3.4, -4.8]
 
 
-class AnritsuVNA(AbstractVNA):
-    """Driver specifically for Anritsu VectorStar Network Analyzers."""
+class SimulatedAnritsuVNA(AbstractVNA):
+    """Simulated Anritsu VectorStar: no instrument I/O, fixed trace."""
 
     def connect(self) -> bool:
         print(

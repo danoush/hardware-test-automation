@@ -1,11 +1,5 @@
-import sys
-import os
-
-# Align local workspace environment directory path trees
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-
-from core.nanovna_driver import PhysicalNanoVNA
-from pipelines.execution_engine import run_automated_wafer_probe_line
+from prototypes.execution_engine import run_automated_wafer_probe_line
+from prototypes.old_nanovna_driver import PhysicalNanoVNA
 
 
 def execute_live_desk_run():

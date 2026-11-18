@@ -1,7 +1,10 @@
 import sqlite3
+from pathlib import Path
+
+DEFAULT_DB_PATH = Path(__file__).parent / "hvm_test_factory.db"
 
 
-def initialize_production_database(db_path="hvm_test_factory.db"):
+def initialize_production_database(db_path=DEFAULT_DB_PATH):
     """Creates a local relational database to log wafer-level test parameters."""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()

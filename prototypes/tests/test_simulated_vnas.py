@@ -1,18 +1,20 @@
+"""Tests for the simulated VNAs in prototypes/simulated_vnas.py."""
+
 import pytest
 
-from core.vna_drivers import AnritsuVNA, KeysightVNA
+from prototypes.simulated_vnas import SimulatedAnritsuVNA, SimulatedKeysightVNA
 
 
 def test_keysight_driver_initial_state():
     """Validates that a new Keysight driver initializes in a safe, disconnected state."""
-    driver = KeysightVNA("GPIB0::22::INSTR")
+    driver = SimulatedKeysightVNA("GPIB0::22::INSTR")
     assert driver.is_connected is False
     assert driver.resource_address == "GPIB0::22::INSTR"
 
 
 def test_keysight_successful_connection():
     """Verifies that calling connect updates the internal state flags correctly."""
-    driver = KeysightVNA("GPIB0::22::INSTR")
+    driver = SimulatedKeysightVNA("GPIB0::22::INSTR")
     connection_success = driver.connect()
 
     assert connection_success is True
@@ -24,7 +26,7 @@ def test_keysight_bandwidth_disconnection_guard():
     Enforces basic safety hygiene: The driver must raise a ConnectionError
     if an engineer attempts to alter hardware states before connecting.
     """
-    driver = KeysightVNA("GPIB0::22::INSTR")
+    driver = SimulatedKeysightVNA("GPIB0::22::INSTR")
 
     # Assert that a ConnectionError is correctly raised by the HAL guard
     with pytest.raises(ConnectionError) as exc_info:
@@ -38,8 +40,8 @@ def test_vendor_trace_data_conformity():
     Validates data contract integrity. Both Keysight and Anritsu child drivers
     must return a python list of exactly 5 scalar data points during an S21 sweep.
     """
-    keysight_tool = KeysightVNA("GPIB0::22::INSTR")
-    anritsu_tool = AnritsuVNA("TCPIP0::192.168.1.50::INSTR")
+    keysight_tool = SimulatedKeysightVNA("GPIB0::22::INSTR")
+    anritsu_tool = SimulatedAnritsuVNA("TCPIP0::192.168.1.50::INSTR")
 
     keysight_tool.connect()
     anritsu_tool.connect()
