@@ -12,3 +12,5 @@ packages = ["core", "analytics", "prototypes"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+# Only these folders hold tests, so test files parked elsewhere (like Claude outputs/) aren't collected.
+testpaths = ["tests", "prototypes/tests"]
