@@ -234,7 +234,7 @@ def test_close_is_safe_before_connect_and_twice():
 
 
 def test_measure_after_close_raises_connection_error():
-    vna, fake = connected_vna({SCAN_COMMAND: SCAN_REPLY})
+    vna, _ = connected_vna({SCAN_COMMAND: SCAN_REPLY})
     vna.close()
     with pytest.raises(ConnectionError):
         vna.measure(50e3, 900e6, 11)
@@ -243,10 +243,8 @@ def test_measure_after_close_raises_connection_error():
 def test_with_block_closes_port_even_after_an_error():
     fake = FakeSerial({WAKE: WAKE_REPLY})
     vna = NanoVNA("COM_TEST", serial_factory=lambda *args, **kwargs: fake)
-
-    with pytest.raises(ValueError):
-        with vna:
-            vna.measure(900e6, 50e3, 11)  # bad arguments raise inside the block
+    with pytest.raises(ValueError), vna:
+        vna.measure(900e6, 50e3, 11)  # bad arguments raise inside the block
 
     assert fake.is_open is False
 
@@ -314,11 +312,4 @@ def test_flags_must_be_whole_words():
     ],
 )
 def test_missing_cal_flags(status, expected):
-    """
-    Return the flags in REQUIRED_CAL_FLAGS that `status` lacks.
-
-    `status` is the output of the `cal` shell command, e.g.
-    "load isoln Es Er Et cal'ed". An empty set means fully calibrated
-    with correction switched on.
-    """
     assert missing_cal_flags(status) == expected

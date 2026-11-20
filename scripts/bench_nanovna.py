@@ -1,16 +1,31 @@
-"""
-Frequency sweep through NanoVNA using measure(start_hz, stop_hz, points). Tracks performance via perf_counter().
-Outputs S21 in db (next to associated frequencies), calibration data, and IF bandwidth.
+"""Run a NanoVNA sweep and save its raw data and measurement metadata.
+
+Usage: python scripts/bench_nanovna.py <label> <slot>
 """
 
+import sys
+from datetime import datetime
+from pathlib import Path
 from time import perf_counter
 
 import numpy as np
 
 from core.nanovna import NanoVNA, missing_cal_flags
+from core.sweep_file import save_sweep
+
+if len(sys.argv) != 3:
+    raise SystemExit("Usage: python scripts/bench_nanovna.py <label> <slot>")
+
+label, slot = sys.argv[1:3]
 
 with NanoVNA("COM3") as vna:
-    print(vna.identify())
+    recall_reply = vna._query(f"recall {slot}")
+    if recall_reply:
+        raise SystemExit(f"Could not recall calibration slot {slot!r}: {recall_reply}")
+
+    firmware_version = vna.identify()
+    print(firmware_version)
+
     cal_status = vna._query("cal")
     missing_cals = missing_cal_flags(cal_status)
     if missing_cals:
@@ -22,6 +37,27 @@ with NanoVNA("COM3") as vna:
     result = vna.measure(50e3, 900e6, 101)
     end = perf_counter()
     print(f"Measurement took {end - start:.3f} seconds.")
+
+    measurement_time = datetime.now().astimezone()
+    repo_root = Path(__file__).resolve().parents[1]
+    output_path = (
+        repo_root
+        / "data"
+        / measurement_time.strftime("%Y-%m-%d")
+        / f"{label}_{measurement_time.strftime('%H%M%S')}.csv"
+    )
+    save_sweep(
+        output_path,
+        result,
+        {
+            "label": label,
+            "slot": slot,
+            "cal_status": cal_status,
+            "firmware_version": firmware_version,
+            "time": measurement_time.isoformat(timespec="seconds"),
+        },
+    )
+    print(f"Saved sweep to {output_path}")
 
     # Calculate S21 in dB (Insertion Loss / Attenuation)
     s21_db = 20 * np.log10(np.abs(result.s21))
