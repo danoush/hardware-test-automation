@@ -22,3 +22,38 @@ def test_vna_cannot_be_used_without_implementing_the_contract():
 
     with pytest.raises(TypeError):
         HalfDone()  # close, identify and measure are still abstract
+
+
+@pytest.mark.parametrize("frequencies", [[], [50e3]])
+def test_sweep_with_fewer_than_two_points_raises(frequencies):
+    with pytest.raises(ValueError, match="at least two points"):
+        SweepResult(
+            frequency_hz=np.array(frequencies),
+            s11=np.zeros(len(frequencies), dtype=complex),
+            s21=np.zeros(len(frequencies), dtype=complex),
+        )
+
+
+@pytest.mark.parametrize(
+    "frequencies",
+    [
+        [50e3, 450e6, 400e6, 900e6],
+        [50e3, 450e6, 450e6, 900e6],
+    ],
+)
+def test_non_ascending_sweep_raises(frequencies):
+    with pytest.raises(ValueError, match="strictly ascending"):
+        SweepResult(
+            frequency_hz=np.array(frequencies),
+            s11=np.zeros(len(frequencies), dtype=complex),
+            s21=np.zeros(len(frequencies), dtype=complex),
+        )
+
+
+def test_valid_two_point_sweep_builds():
+    sweep = SweepResult(
+        frequency_hz=np.array([50e3, 900e6]),
+        s11=np.zeros(2, dtype=complex),
+        s21=np.zeros(2, dtype=complex),
+    )
+    np.testing.assert_array_equal(sweep.frequency_hz, [50e3, 900e6])

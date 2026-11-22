@@ -34,12 +34,16 @@ class SweepResult:
 
     def __post_init__(self) -> None:
         # Runs automatically right after the generated __init__.
-        n = len(self.frequency_hz)
-        if len(self.s11) != n or len(self.s21) != n:
+        freq_count = len(self.frequency_hz)
+        if len(self.s11) != freq_count or len(self.s21) != freq_count:
             raise ValueError(
-                f"length mismatch: {n} frequencies, {len(self.s11)} S11 values, "
+                f"Length mismatch: {freq_count} frequencies, {len(self.s11)} S11 values, "
                 f"{len(self.s21)} S21 values"
             )
+        if freq_count < 2:
+            raise ValueError("Frequency sweep must contain at least two points.")
+        if not np.all(self.frequency_hz[1:] > self.frequency_hz[:-1]):
+            raise ValueError("Frequency sweep must be in strictly ascending order.")
 
 
 class VNA(ABC):

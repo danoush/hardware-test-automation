@@ -138,27 +138,7 @@ def test_empty_band_raises():
         grade_attenuation(pad, 3.0, 0.1, (1e6, 2e6))
 
 
-@pytest.mark.parametrize("frequencies", [[], [50e3]])
-def test_sweep_with_fewer_than_two_points_raises(frequencies):
-    sweep = make_sweep(np.full(len(frequencies), 3.0), freqs=frequencies)
-    with pytest.raises(ValueError, match="at least two points"):
-        grade_attenuation(sweep, 3.0, 0.1, (50e3, 900e6))
-
-
 @pytest.mark.parametrize("band_hz", [(), (50e3,)])
 def test_band_without_two_edges_raises(band_hz):
     with pytest.raises(ValueError, match="exactly two frequency boundaries"):
         grade_attenuation(flat(3.0), 3.0, 0.1, band_hz)
-
-
-@pytest.mark.parametrize(
-    "frequencies",
-    [
-        [50e3, 450e6, 400e6, 900e6],
-        [50e3, 450e6, 450e6, 900e6],
-    ],
-)
-def test_non_ascending_sweep_raises(frequencies):
-    sweep = make_sweep(np.full(len(frequencies), 3.0), freqs=frequencies)
-    with pytest.raises(ValueError, match="strictly ascending order"):
-        grade_attenuation(sweep, 3.0, 0.1, (50e3, 900e6))
