@@ -31,3 +31,9 @@ band_hz = [50e3, 676e6]
 # nominal_db and tolerance_db values from Nooelec SMA Attenuator Kit
 # band_hz from known "good" range of 50e3 - 675.0125e6 Hz out of original 50e3 - 900e6 Hz sweep on NanoVNA
 # "good" range goes higher than this upper bound but we sample at 675.0125e6
+
+[attenuators.thru]
+nominal_db = 0
+tolerance_db = 0.15
+band_hz = [50e3, 676e6]
+# 11/19/26: healthy thrus at most 0.09 dB, slot 0 at 0.29 dB

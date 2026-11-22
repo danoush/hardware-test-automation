@@ -1,22 +1,38 @@
 """Run a NanoVNA sweep and save its raw data and measurement metadata.
 
-Usage: python scripts/bench_nanovna.py <label> <slot>
+Usage: python scripts/bench_nanovna.py <label> <slot> [part]
 """
 
-import sys
+import argparse
+import tomllib
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
 
 import numpy as np
 
+from analytics.grading import grade_attenuation
+from analytics.limits import attenuator_limits
 from core.nanovna import NanoVNA, missing_cal_flags
 from core.sweep_file import save_sweep
 
-if len(sys.argv) != 3:
-    raise SystemExit("Usage: python scripts/bench_nanovna.py <label> <slot>")
-
-label, slot = sys.argv[1:3]
+parser = argparse.ArgumentParser(description="Run NanoVNA bench sweep.")
+parser.add_argument("label", help="Test or measurement name (e.g., thru_check)")
+parser.add_argument(
+    "slot",
+    type=int,
+    choices=range(5),
+    metavar="slot",
+    help="Saved calibration/recall slot number (0-4)",
+)
+parser.add_argument(
+    "part", nargs="?", default=None, help="Optional part/standard type (e.g., thru)"
+)
+args = parser.parse_args()
+label = args.label
+slot = args.slot
+if args.part is not None:
+    part = args.part
 
 with NanoVNA("COM3") as vna:
     recall_reply = vna._query(f"recall {slot}")
@@ -37,26 +53,37 @@ with NanoVNA("COM3") as vna:
     result = vna.measure(50e3, 900e6, 101)
     end = perf_counter()
     print(f"Measurement took {end - start:.3f} seconds.")
-
     measurement_time = datetime.now().astimezone()
+
     repo_root = Path(__file__).resolve().parents[1]
+    metadata = {
+        "label": label,
+        "slot": str(slot),
+        "cal_status": cal_status,
+        "firmware_version": firmware_version,
+        "time": measurement_time.isoformat(timespec="seconds"),
+    }
+    if part is not None:
+        with (repo_root / "config" / "limits.toml").open("rb") as f:
+            config = tomllib.load(f)
+        limits = attenuator_limits(config, part)
+        nominal_db = limits.nominal_db
+        tolerance_db = limits.tolerance_db
+        grade = grade_attenuation(result, nominal_db, tolerance_db, limits.band_hz)
+        grade_outcome = "PASS" if grade.passed else "FAIL"
+        metadata.update({"part": part, "result": grade_outcome})
+        print(
+            f"{grade_outcome}: worst error {grade.worst_error_db:+.3f} dB "
+            f"at {grade.worst_frequency_hz / 1e6:.3f} MHz"
+        )
+
     output_path = (
         repo_root
         / "data"
         / measurement_time.strftime("%Y-%m-%d")
         / f"{label}_{measurement_time.strftime('%H%M%S')}.csv"
     )
-    save_sweep(
-        output_path,
-        result,
-        {
-            "label": label,
-            "slot": slot,
-            "cal_status": cal_status,
-            "firmware_version": firmware_version,
-            "time": measurement_time.isoformat(timespec="seconds"),
-        },
-    )
+    save_sweep(output_path, result, metadata)
     print(f"Saved sweep to {output_path}")
 
     # Calculate S21 in dB (Insertion Loss / Attenuation)
@@ -84,5 +111,11 @@ with NanoVNA("COM3") as vna:
     print(f"\nWorst S11 (Reflection):\n{worst_s11:.2f} dB")
     print("\nCalibration data:", cal_status)
     print("\nIF Bandwidth:", vna._query("bandwidth"))
-
+    if part is not None:
+        print(f"\nNominal dB: {nominal_db}")
+        print(f"\nTolerance dB: {tolerance_db}")
+        print(
+            f"{grade_outcome}: worst error {grade.worst_error_db:+.3f} dB "
+            f"at {grade.worst_frequency_hz / 1e6:.3f} MHz"
+        )
     vna._query("resume")
