@@ -7,13 +7,10 @@ Run with:  pytest tests/test_limits.py -x
 """
 
 import tomllib
-from pathlib import Path
 
 import pytest
 
-from analytics.limits import AttenuatorLimits, attenuator_limits
-
-LIMITS_FILE = Path(__file__).parent.parent / "config" / "limits.toml"
+from analytics.limits import AttenuatorLimits, attenuator_limits, load_limits
 
 # Two parts with different numbers everywhere, so a value copied from one
 # part to the other, or typed into the code, gets caught.
@@ -78,6 +75,47 @@ def test_empty_file_raises_value_error_not_key_error():
         attenuator_limits({}, "pad_3db")
 
 
+@pytest.mark.parametrize(
+    ("part", "contents", "expected"),
+    [
+        (
+            "pad_3db",
+            """
+[attenuators.pad_3db]
+nominal_db = 3.0
+tolerance_db = 0.1
+band_hz = [50e3, 675e6]
+""",
+            AttenuatorLimits(3.0, 0.1, (50e3, 675e6)),
+        ),
+        (
+            "pad_10db",
+            """
+[attenuators.pad_10db]
+nominal_db = 10.0
+tolerance_db = 0.25
+band_hz = [1e6, 450e6]
+""",
+            AttenuatorLimits(10.0, 0.25, (1e6, 450e6)),
+        ),
+    ],
+)
+def test_load_limits_reads_a_toml_file(tmp_path, part, contents, expected):
+    path = tmp_path / "limits.toml"
+    path.write_text(contents, encoding="utf-8")
+
+    assert attenuator_limits(load_limits(path), part) == expected
+
+
+def test_load_limits_missing_file_raises(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        load_limits(tmp_path / "missing.toml")
+
+
+def test_default_limits_include_thru_tolerance():
+    assert attenuator_limits(load_limits(), "thru").tolerance_db == 0.15
+
+
 @pytest.mark.parametrize("key", ["nominal_db", "tolerance_db", "band_hz"])
 def test_missing_key_raises_and_names_it(key):
     config = two_pads()
@@ -115,8 +153,7 @@ def test_bad_band_raises(band):
 
 def test_your_limits_file_is_valid():
     # Every attenuator in config/limits.toml must produce valid limits.
-    with open(LIMITS_FILE, "rb") as f:  # tomllib reads bytes: "rb", not "r"
-        config = tomllib.load(f)
+    config = load_limits()
     parts = config["attenuators"]
     assert parts, "config/limits.toml has no [attenuators.<part>] tables"
     for part in parts:

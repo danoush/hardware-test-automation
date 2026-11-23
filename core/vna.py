@@ -23,7 +23,7 @@ class SweepResult:
     means physically turning the device under test around.
 
     Attributes:
-        frequency_hz: Sweep frequencies in Hz, shape (N,).
+        frequency_hz: Sweep frequencies in Hz, shape (N,), at least two points, strictly ascending.
         s11: Complex reflection coefficient at port 1, shape (N,).
         s21: Complex transmission from port 1 to port 2, shape (N,).
     """
@@ -42,7 +42,7 @@ class SweepResult:
             )
         if freq_count < 2:
             raise ValueError("Frequency sweep must contain at least two points.")
-        if not np.all(self.frequency_hz[1:] > self.frequency_hz[:-1]):
+        if not np.all(np.diff(self.frequency_hz)) > 0:
             raise ValueError("Frequency sweep must be in strictly ascending order.")
 
 

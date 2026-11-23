@@ -57,3 +57,20 @@ def test_valid_two_point_sweep_builds():
         s21=np.zeros(2, dtype=complex),
     )
     np.testing.assert_array_equal(sweep.frequency_hz, [50e3, 900e6])
+
+
+@pytest.mark.parametrize(
+    "frequencies",
+    [
+        [50e3, 450e6, 400e6, 900e6],
+        [50e3, 450e6, 450e6],
+    ],
+)
+def test_non_ascending_plain_list_raises(frequencies):
+    # A plain list, not np.array(...): list > list compares like words in a dictionary.
+    with pytest.raises(ValueError, match="strictly ascending"):
+        SweepResult(
+            frequency_hz=frequencies,
+            s11=np.zeros(len(frequencies), dtype=complex),
+            s21=np.zeros(len(frequencies), dtype=complex),
+        )

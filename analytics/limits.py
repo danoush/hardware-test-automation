@@ -1,14 +1,14 @@
-"""Pass/fail limits, read from config/limits.toml.
+"""Load and validate pass/fail limits from config/limits.toml.
 
-The limits file is the one place pass/fail numbers live. This module turns one
-entry of the parsed file into a typed, checked object, so a typo in the file
-fails loudly here instead of quietly changing a grade.
-
-It never opens files itself: callers parse the file with tomllib and pass the
-resulting dict in, the same split as parse_scan (pure) and measure() (I/O).
+load_limits handles TOML file I/O. attenuator_limits accepts parsed config
+data, so callers and tests can also provide their own dictionaries.
 """
 
 from dataclasses import dataclass
+from pathlib import Path
+import tomllib
+
+LIMITS_PATH = Path(__file__).resolve().parents[1] / "config" / "limits.toml"
 
 
 @dataclass(frozen=True)
@@ -24,6 +24,16 @@ class AttenuatorLimits:
     nominal_db: float
     tolerance_db: float
     band_hz: tuple[float, float]
+
+
+def load_limits(path: Path = LIMITS_PATH) -> dict:
+    """Load and return TOML configuration from `path`.
+
+    Defaults to the repository's config/limits.toml file. File-not-found and
+    TOML parse errors are allowed to propagate to the caller.
+    """
+    with path.open("rb") as file:
+        return tomllib.load(file)
 
 
 def attenuator_limits(config: dict, part: str) -> AttenuatorLimits:
