@@ -70,7 +70,7 @@ with NanoVNA("COM3") as vna:
             "firmware_version": firmware_version,
             "time": measurement_time.isoformat(timespec="seconds"),
         }
-        if part is not None and limits is not None:
+        if limits is not None:
             nominal_db = limits.nominal_db
             tolerance_db = limits.tolerance_db
             grade = grade_attenuation(result, nominal_db, tolerance_db, limits.band_hz)
@@ -111,7 +111,7 @@ with NanoVNA("COM3") as vna:
         print(f"\nWorst S11 (Reflection):\n{worst_s11:.2f} dB")
         print("\nCalibration data:", cal_status)
         print("\nIF Bandwidth:", vna._query("bandwidth"))
-        if part is not None and limits is not None:
+        if limits is not None:
             print(f"\nNominal dB: {nominal_db}")
             print(f"\nTolerance dB: {tolerance_db}")
             print(

@@ -4,9 +4,9 @@ load_limits handles TOML file I/O. attenuator_limits accepts parsed config
 data, so callers and tests can also provide their own dictionaries.
 """
 
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-import tomllib
 
 LIMITS_PATH = Path(__file__).resolve().parents[1] / "config" / "limits.toml"
 

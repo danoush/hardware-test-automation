@@ -42,7 +42,7 @@ class SweepResult:
             )
         if freq_count < 2:
             raise ValueError("Frequency sweep must contain at least two points.")
-        if not np.all(np.diff(self.frequency_hz)) > 0:
+        if not np.all(np.diff(self.frequency_hz) > 0):
             raise ValueError("Frequency sweep must be in strictly ascending order.")
 
 
