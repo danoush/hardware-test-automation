@@ -1,6 +1,6 @@
 # Hardware Test Automation Framework
 
-[![tests](https://github.com/danoush/pic-test-automation-framework/actions/workflows/tests.yml/badge.svg)](https://github.com/danoush/pic-test-automation-framework/actions/workflows/tests.yml)
+[![tests](https://github.com/danoush/hardware-test-automation/actions/workflows/tests.yml/badge.svg)](https://github.com/danoush/hardware-test-automation/actions/workflows/tests.yml)
 
 Python test automation built around a real instrument: a NanoVNA-H vector network analyzer driven over USB serial. A bench script recalls a calibration slot, refuses to measure unless the analyzer reports a complete calibration, sweeps, saves the raw data and, given a part name, grades it PASS or FAIL against limits kept in a config file. A pytest suite runs on every push without hardware, using a fake serial port that replays output captured from the analyzer.
 
