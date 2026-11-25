@@ -71,6 +71,7 @@ def load_sweep(path: Path) -> tuple[SweepResult, dict[str, str]]:
         ValueError: if the data rows don't have exactly five columns. The
             message says how many columns it found.
     """
+
     metadata: dict[str, str] = {}
     with path.open(encoding="utf-8") as file:
         for line in file:
