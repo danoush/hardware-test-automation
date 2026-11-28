@@ -1,14 +1,4 @@
-"""
-Usage: python scripts/regrade.py <part> <folder> <pattern>.
-
-Use argparse with three positional arguments: part, folder, pattern.
-Look up the limits first, with load_limits() and attenuator_limits(), so a misspelled part fails before any file is read.
-Build the file list with sorted(Path(folder).glob(pattern)). If it's empty, raise SystemExit(f"No files match {pattern!r} in {folder}").
-For each file, run load_sweep and then grade_attenuation, and print one line: the file name, PASS or FAIL, and the worst error. Use two spaces between the parts, and the same number formats as the bench script.
-End with a count line like 6 PASS, 4 FAIL.
-
-The expected output is your test.
-"""
+"""Usage: python scripts/regrade.py <part> <folder> <pattern>."""
 
 import argparse
 from collections.abc import Sequence
